@@ -1,0 +1,40 @@
+function y=FFT2(N,n,D,x)
+    if D(n)==n
+        % The base case
+        y = Fourier(N)*x;
+    else
+        % factor n=r+s, N=RS
+        r = D(n,1); R = 2^r; s = n-r; S = 2^s;
+        
+        % Permute input vector
+        t1 = ones(N,1); %initialize temporary vector
+       
+        for k=1:S
+            for j=1:R
+                t1((j-1)*S+k) = x((k-1)*R+j);
+            end
+        end
+        
+        % Compute kron(I_R,F_S)
+        t2 = ones(N,1);%initialize temporary vector
+        
+        for k=1:R
+            t2((k-1)*S+1:1:k*S,1) = FFT2(S,s,D,t1((k-1)*S+1:1:k*S,1));
+        end
+        
+        % Multiply by twiddle factors
+        t3 = zeros(N,1); %initialize temporary vector
+        w = ones(S,1);
+        w_n = exp(-2*pi*1i/N*[0:S-1])';
+        for k=1:R
+            t3((k-1)*S+1:1:k*S,1) = w.*t2((k-1)*S+1:1:k*S,1);
+            w = w.*w_n; % product
+        end
+        
+        % Compute kron(F_S,I_R)
+        y = ones(N,1); %initialize output vector
+        for k=1:S
+            y(k:S:k+(R-1)*S,1) = FFT2(R,r,D,t3(1:S:k+(R-1)*S,1));
+        end
+    end
+end

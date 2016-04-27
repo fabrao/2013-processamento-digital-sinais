@@ -1,0 +1,13 @@
+function H = FFT3(x)
+    n = length(x);  % x = tamanho do vetor
+    if n == 1 % Se tamanho do vator = 1 -> retorna vetor
+        H = x;
+    else % Senão separa e transforma vetor
+        m = n/2; % m = metade do tamanho do vetor
+        vet_top = fft_rec(x(1:2:(n-1))); % Separa sequencia superior (recursivo)
+        vet_bot = fft_rec(x(2:2:n)); % Separa sequencia inferior (recursivo)
+        w = exp(-2 * pi * 1i / n) .^ (0:m-1);
+        z = w .* vet_bot;
+        H = [ vet_top + z , vet_top - z ]; 
+    end
+end
